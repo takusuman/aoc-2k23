@@ -36,32 +36,21 @@ function main {
 			# If it was generated haphazardly, it would be a
 			# completely different history.
 			p3gamesum+=$((g+1))
-			p3gamespos+=( $g )
 		else
 			continue
 		fi
-	done
-	print -f 'The sum of the possible games ID: %d\n' $p3gamesum
-
-#	for ((g=0; g<${#p3gamespos[@]}; g++ )); do
-		# Possible game string
-#		p3gamenum=${p3gamespos[$g]}
-#		ret=$(part_two "${gamefbuf[$p3gamenum]}")
-#		ret=$(part_two "${gamefbuf[0]}")
-#		p3gameminsum=+$(( $ret ))
-#	done
-
-	for ((g=0; g<${#gamefbuf[@]}; g++)); do
 		ret=$(part_two "${gamefbuf[$g]}")
 		p3gameminsum+=$(( $ret ))
 	done
+	print -f 'The sum of the possible games ID: %d\n' $p3gamesum
 	print -f 'The sum of the power of the minimum numbers for possible games: %d\n' $p3gameminsum
 
 }
 
 function part_one {
+	set -x
 	s="$1"
-	integer c ngame nmain m mc cubecolour uptotwodots 
+	integer c nmain m mc cubecolour uptotwodots 
 
 	# I think I will need to record each game per ID in a, let's
 	# say, Google Go language-like "map"... Or better, a Pascal "record".
@@ -80,8 +69,9 @@ function part_one {
 	#ngame="${s:5:1}"
 	# Getting the game number utilizing pure POSIX stubborness, just because
 	# I want to save for loops.
-	ngame=${s%%:*}
-	ngame=${ngame##Game }
+	_ngame=${s%%:*}
+	ngame=${_ngame##Game }
+	unset _ngame
 
 	# Well, remember when I said that it would be just 8 characters
 	# from "Game N: " to the game content itself? I erred!
@@ -94,7 +84,7 @@ function part_one {
 		if [[ "${s:$uptotwodots:1}" == ':' ]]; then
 			break
 		fi
-	done
+	done; uptotwodots=$((uptotwodots + 1))
 
 	for ((c=uptotwodots; c < ${#s}; c++)); do
 		# String current character.
@@ -155,7 +145,6 @@ function part_one {
 }
 
 function part_two {
-	set -x
 	s=$1
 
 	# "As you continue your walk, the Elf poses a second question:
@@ -168,8 +157,9 @@ function part_two {
 	# this in a single function.
 	# I could pretty much memoize much of these, but I won't do it
 	# for now because I would have to rewrite almost everything.
-	ngame=${s%%:*}
-	ngame=${ngame##Game }
+	_ngame=${s%%:*}
+	ngame=${_ngame##Game }
+	unset _ngame
 	for ((uptotwodots=0; ; uptotwodots++)); do
 		if [[ "${s:$uptotwodots:1}" == ':' ]]; then
 			break
