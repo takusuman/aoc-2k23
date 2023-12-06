@@ -41,7 +41,7 @@ namespace part {
 	function one {
 		#set -x
 		s="$1"
-		integer c ngame nmain m mc cubecolour 
+		integer c ngame nmain m mc cubecolour uptotwodots 
 
 		# I think I will need to record each game per ID in a, let's
 		# say, Google Go language-like "map".
@@ -59,19 +59,28 @@ namespace part {
 		# Game number ->  ${line:5:1}
 		ngame="${s:5:1}"
 
-		# 8 characters from "Game N: " to its contents:
-		#c 12345678
-		#s"Game N: "
-		# But we will start reading it from the 7th.
-		for ((c=7; c < ${#s}; c++)); do
+		# Well, remember when I said that it would be just 8 characters
+		# from "Game N: " to the game content itself? I erred!
+		# This time, we will be counting using a C-style for loop until
+		# we stump in a two-dot.
+		# So, now, consider n characters from "Game N: " to its contents:
+		#c 1,2,3,4,5,.,.,(n-1),n
+		#s"G,a,m,e, ,n,n,:, "
+		for ((uptotwodots=0; ; uptotwodots++)); do
+			if [[ "${s:$uptotwodots:1}" == ':' ]]; then
+				break
+			fi
+		done
+
+		for ((c=uptotwodots; c < ${#s}; c++)); do
 			# String current character.
 			scchr="${s:$c:1}"
 			# If, by accident, some ":" get on the way.
 			# Well, also forgot the fact that we will exceed 3-digit
 			# numbers.
-			if [[ "$scchr" == ':' ]]; then
-				continue
-			elif [[ "$scchr" != ';' ]]; then
+#			if [[ "$scchr" == ':' ]]; then
+#				continue
+			if [[ "$scchr" != ';' ]]; then
 				# "pgame" means something like "proto-game", it
 				# will contain the unparsed mains, but it will
 				# be a reference for later transmuting it into
