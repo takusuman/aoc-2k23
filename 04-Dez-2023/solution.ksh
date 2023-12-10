@@ -20,7 +20,7 @@ function main {
 namespace part {
 	function one {
 		nameref cardfbuffer="$1"
-		integer i j k l n winnum separator_pos cardnum matchnum matchsum 
+		integer cardid i j k l n winnum separator_pos cardnum matchnum matchsum 
 		typeset -a cards
 		
 		# This entire part just separes the winning numbers from the
@@ -29,10 +29,21 @@ namespace part {
 			string="${cardfbuffer[$l]}"
 			card_separator_pos="$(.strings.uptochar "$string" ':')"
 			separator_pos="$(.strings.uptochar "$string" '|')"
+			
 			# Card number
-			_ncard=${string%%:*}
-			ncard=${_ncard##Card }
-			unset _ncard
+			for ((cardid=0; cardid <= card_separator_pos; cardid++)); do
+				cardidchr="${string:cardid:1}"
+				if [[ "$cardidchr" != +([0-9]) \
+				|| "$cardidchr" == [[:space:]] ]]; then
+					continue
+				elif [[ "$cardidchr" == ':' ]]; then
+					break
+				else
+					ncard+="$cardidchr"
+				fi
+			done
+			unset cardid cardidchr
+
 			# Number of numbers in the card, it will be used in the
 			# card[][] array. Also there's the number of winning
 			# numbers per card
@@ -60,6 +71,7 @@ namespace part {
 					continue
 				fi
 			done
+			unset ncard
 		done 
 		
 		for ((i=1; i<=${#cards[@]}; i++)); do
@@ -88,7 +100,7 @@ namespace part {
 			unset -n matchnum 
 		done
 
-		print -v cards
+#		print -v cards
 		for ((m=1; m <= ${#cards[@]}; m++ )); do
 		       printf 1>&2 'cards[%d].match: %d\n' ${m} ${cards[m].match}
 		       ((matchsum+= ${cards[m].match}))
