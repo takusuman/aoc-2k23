@@ -20,7 +20,7 @@ function main {
 namespace part {
 	function one {
 		nameref cardfbuffer="$1"
-		integer i j k l n winnum separator_pos cardnum matchnum 
+		integer i j k l n winnum separator_pos cardnum matchnum matchsum 
 		typeset -a cards
 		
 		# This entire part just separes the winning numbers from the
@@ -90,8 +90,10 @@ namespace part {
 
 		print -v cards
 		for ((m=1; m <= ${#cards[@]}; m++ )); do
-		       printf 'cards[%d].match: %d\n' ${m} ${cards[m].match}
+		       printf 1>&2 'cards[%d].match: %d\n' ${m} ${cards[m].match}
+		       ((matchsum+= ${cards[m].match}))
 	       	done
+		printf 1>&2 'The sum of all the matches: %d\n' $matchsum
 	}
 }
 
@@ -115,13 +117,13 @@ namespace strings {
 	}
 
 	function substring {
-		set -x
 		nameref string_identifier="$1"
 		from="$2"
 		to="$3"
 		for ((c=from; c<to; c++)); do
-			printf '%c' "${string_identifier:$c:1}"
+			s+="${string_identifier:$c:1}"
 		done
+		printf '%s' "$s"
 	}
 
 	# Borrowed from herbiec.
